@@ -2,7 +2,7 @@ run_latehook() {
   local ntpconf=/new_root/etc/ntp.conf
   if [ -f "$ntpconf" -a -n "$ntpserver" ]; then
     msg "Setting new ntpserver $ntpserver"
-    grep -v "^server" "$ntpconf" > "$ntpconf"
+    sed -iorg "/^server/d" "$ntpconf"
     echo "server $ntpserver" >> "$ntpconf"
   fi
 }
