@@ -7,19 +7,34 @@ loopback_mount_handler()
 {
   local root_folder=$1
   local device_folder=/rootdevice
-  local rootsquashfs_folder=/rootsquashfs
+  local rootsquashfs_folder_base=/rootsquashfs
   local rootrw_folder=/rootrw
+  local rootsquashfs_folder=""
+  local count tmpfolder tmpsquashfs
 
   mkdir -vp $device_folder
   msg "Mounting root device."
   mount -v -o rw "$root" "$device_folder"
   if [ -n "$rootsquashfs" ]; then
     msg "Mounting root loopback file with squashfs."
-    mkdir -vp "$rootsquashfs_folder"
-    mount -v -o loop,ro -t squashfs "${device_folder}/$rootsquashfs" "$rootsquashfs_folder"
+    count=1
+    while [ -n "$rootsquashfs" ]; do
+      tmpfolder=${rootsquashfs_folder_base}${count}
+      tmpsquashfs=${rootsquashfs%%:*}
+      if [ "$tmpsquashfs" == "$rootsquashfs" ]; then
+        rootsquashfs=""
+      else
+        rootsquashfs=${rootsquashfs#*:}
+      fi
+      mkdir -vp "$tmpfolder"
+      mount -v -o loop,ro -t squashfs "${device_folder}/$tmpsquashfs" "$tmpfolder"
+      test -n "$rootsquashfs_folder" && rootsquashfs_folder="${rootsquashfs_folder}:"
+      rootsquashfs_folder="${rootsquashfs_folder}${tmpfolder}"
+      count=$((count + 1))
+    done
     mkdir -vp "$rootrw_folder"
     mount -v -o loop,rw "${device_folder}/$rootloopback" "$rootrw_folder"
-    mount -t aufs -o "br:${rootrw_folder}=rw,br:${rootsquashfs_folder}=ro" none "$root_folder"
+    mount -t aufs -o "br:${rootrw_folder}=rw:${rootsquashfs_folder}" none "$root_folder"
   else
     msg "Mounting root loopback file."
     mount -v -o loop,rw "${device_folder}/$rootloopback" "$root_folder"
