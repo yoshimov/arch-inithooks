@@ -3,7 +3,7 @@ run_latehook() {
   if [ -f "$ntpconf" -a -n "$ntpserver" ]; then
     msg "Setting new ntpserver $ntpserver"
     grep -v "^server" "$ntpconf" > "$ntpconf"
-    cat "server $ntpserver" >> "$ntpconf"
+    echo "server $ntpserver" >> "$ntpconf"
   fi
 }
 

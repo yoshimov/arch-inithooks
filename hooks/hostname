@@ -2,7 +2,7 @@ run_latehook() {
   local hostname_file=/new_root/etc/hostname
   if [ -f "$hostname_file" -a -n "$hostname" ]; then
     msg "Setting new hostname $hostname"
-    cat "$hostname" > "$hostname_file"
+    echo "$hostname" > "$hostname_file"
   fi
 }
 
