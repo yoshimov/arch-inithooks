@@ -7,11 +7,24 @@ loopback_mount_handler()
 {
   local root_folder=$1
   local device_folder=/rootdevice
+  local rootsquashfs_folder=/rootsquashfs
+  local rootrw_folder=/rootrw
+
   mkdir -vp $device_folder
   msg "Mounting root device."
   mount -v -o rw "$root" "$device_folder"
-  msg "Mounting root loopback file."
-  mount -v -o loop,rw "${device_folder}/$rootloopback" "$root_folder"
+  if [ -n "$rootsquashfs" ]; then
+    msg "Mounting root loopback file with squashfs."
+    mkdir -vp "$rootsquashfs_folder"
+    mount -v -o loop,ro -t squashfs "${device_folder}/$rootsquashfs" "$rootsquashfs_folder"
+    mkdir -vp "$rootrw_folder"
+    mount -v -o loop,rw "${device_folder}/$rootloopback" "$rootrw_folder"
+    mount -t aufs -o "br:${rootrw_folder}=rw,br:${rootsquashfs_folder}=ro" none "$root_folder"
+  else
+    msg "Mounting root loopback file."
+    mount -v -o loop,rw "${device_folder}/$rootloopback" "$root_folder"
+  fi
+  mkdir -vp "${root_folder}/boot"
   mount -v --move "${device_folder}" "${root_folder}/boot" || true
 }
 

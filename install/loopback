@@ -1,5 +1,7 @@
 build()
 {
+  add_module loop
+  add_module squashfs
   add_runscript
 }
 
