@@ -1,0 +1,17 @@
+run_hook()
+{
+  test -n "$rootloopback" && mount_handler=loopback_mount_handler
+}
+
+loopback_mount_handler()
+{
+  local root_folder=$1
+  local device_folder=/rootdevice
+  mkdir -vp $device_folder
+  msg "Mounting root device."
+  mount -v -o rw "$root" "$device_folder"
+  msg "Mounting root loopback file."
+  mount -v -o loop,rw "${device_folder}/$rootloopback" "$root_folder"
+  mount -v --move "${device_folder}" "${root_folder}/boot" || true
+}
+

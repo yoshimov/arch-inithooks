@@ -1,0 +1,11 @@
+build()
+{
+  add_runscript
+}
+
+help() {
+cat <<EOF
+loopback mount root folder.
+EOF
+}
+
