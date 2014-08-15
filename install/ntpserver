@@ -1,0 +1,11 @@
+build()
+{
+  add_runscript
+}
+
+help() {
+cat <<EOF
+setting ntpserver from cmdline.
+EOF
+}
+
